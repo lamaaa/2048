@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="Initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>hello world</title>
+    <script src="jquery-1.10.2.min.js" type="text/javascript"></script>
+    <script src="jquery.touchwipe.min.js" type="text/javascript"></script>
+    <style type="text/css">
+    			/*
+		 * 整个游戏的样式
+		 */
+		.container
+		{
+			width: 345px;
+			height: 345px;
+			margin: auto;
+			background-color:#ccc0b2 ;
+			border-radius: 5px;
+			position: relative;
+			overflow: hidden;
+		}
+		
+		/*
+		 * 格子的样式
+		 */
+		.container div
+		{
+			width:76px;
+			height: 76px;
+			margin: 5px;
+			float:left;
+			text-align: center;
+			color: #7c736a;
+			background-color: #eee4da;
+			font-size: 36px;
+			line-height: 78px;
+			font-family: consolas;
+			transition: transform 0.5s linear;
+		}
+		/*
+		 * 照片的样式
+		 */
+		.container img
+		{
+			width: 345px;
+			height: 345px;
+			position: absolute;	/*绝对定位*/
+			top: 0px;
+			left: 0px;
+			transition: top 0.5s linear;
+		}
+		/*
+		 * 格子的样式
+		 */
+		.container .title2
+		{
+			color: #7c736a;
+    		background: #eee4da;
+		}
+		.container .title4
+		{
+			color: #7c736a;
+   			background: #ece0c8;
+		}
+		.container .title8
+		{
+			color: #fff7eb;
+    		background: #f2b179;
+		}
+		.container .title16
+		{
+			color:#fff7eb;
+    		background:#f59563;
+		}
+		.container .title32
+		{
+			color:#fff7eb;
+    		background:#f57c5f;
+		}
+		.container .title64
+		{
+			color:#fff7eb;
+    		background:#f65d3b;
+		}
+		.container .title128
+		{
+			color:#fff7eb;
+    		background:#edce71;
+		}
+		.container .title256
+		{
+			color:#fff7eb;
+    		background:#edcc61;
+		}
+		.container .title512
+		{
+			color:#fff7eb;
+    		background:#ecc850;
+		}
+		.container .title1024
+		{
+			color:#fff7eb;
+    		background:#edc53f;
+    		font-size: 20px;
+		}
+		.container .title2048
+		{
+			color:#fff7eb;
+    		background:#eec22e;
+    		font-size: 20px;
+		}
+    </style>
+    
+    <script type="text/javascript">
+		var divs = null;	//定义全局变量divs去找到游戏的框架
+		var img = null;		//定义全局变量img去找到开始界面的图片
+		var music = null;
+		
+		/*
+		 * 设置格子的样式和内容
+		 */
+		function SetTitle(obj,num)
+		{
+			/*
+			 * 如果是开始，就清除样式和内容
+			 */
+			if(num == 0)
+			{
+				obj.removeAttribute("class");
+				obj.innerHTML = "";
+			}
+			/*
+			 * 不然，就设置样式
+			 */
+			else
+			{
+				obj.setAttribute("class","title" + num);
+			  	obj.innerHTML = num;
+			}
+			
+		}
+		
+		function GameOver()
+		{
+			var horizontalFlag = 0;	//行标志
+			var verticalFlag = 0;	//列标志
+			var tempRow;			
+			/*
+			 * 判断每一行是否还有相等的
+			 */
+			for(var row = 0; row < 4; row++)
+				{
+					if(horizontalFlag == 1)
+						break;
+					for(var column = row * 4; column < 4 * (row + 1) - 1; column++)
+					{
+						if(divs[column].innerHTML == divs[column + 1].innerHTML)
+							{
+								horizontalFlag = 1;
+								break;
+							}
+					}
+				}
+			
+			/*
+			 * 判断每一列中是否还有相等的
+			 */
+			for(var row = 0; row < 4; row++)
+			{
+				if(verticalFlag == 1)
+					break;
+				for(var column = row + 4,tempRow = row; column < 13 + row; column = column + 4)
+				{
+					if(divs[tempRow].innerHTML == divs[column].innerHTML)
+					{
+						verticalFlag = 1;
+						break;
+					}
+					else
+					{
+						tempRow = column;
+					}
+				}
+			}
+			
+			return (horizontalFlag == 0 && verticalFlag == 0);
+		}
+		/*
+		 * 随机得到格子
+		 */
+		function RandTitle()
+		{
+			var tempDivs = [];		//定义一个临时数组放置所有格子
+			
+			/*
+			 * 得到空的格子
+			 */
+			for(var i = 0; i < divs.length; i++)
+			{
+				if(divs[i].innerHTML.length == 0)
+					tempDivs.push(divs[i]);
+			}
+			
+
+			if(tempDivs.length != 0)
+			{
+				/*
+			 * 得到一个随机格子
+			 */
+			var index1 = Math.floor(Math.random() * tempDivs.length);
+			
+			/*
+			 * 特效
+			 */
+			tempDivs[index1].style.transform = "scale(0.1)";
+			
+			setTimeout(function(){
+				tempDivs[index1].style.transform = "scale(1)";
+			},500)
+			
+			/*
+			 * 赋值
+			 */
+			SetTitle(tempDivs[index1],Math.random() > 0.7 ? 4 : 2);
+			
+			}
+			else
+			{
+				
+					if(GameOver())
+					{
+						alert("Game Over");
+						img.style.top = "0px";
+						
+						return;
+					}
+				
+			}
+			
+			
+		}
+		
+		/*
+		 * 初始化函数
+		 */
+		
+		function Init()
+		{
+			img.style.top = "-345px";	//将开始界面照片上移
+			
+			for(var i = 0; i < divs.length; i++)	//清空所有格子的内容
+			{
+				SetTitle(divs[i],0);
+			}
+			
+			//随机两个格子
+			RandTitle();			
+			RandTitle();
+		}
+		
+		function SpecialEffert(obj)
+		{
+			obj.style.transform = "scale(1.2)";
+			setTimeout(function(){
+				obj.style.transform = "scale(1)";
+			},110);
+		}
+		
+		function Merge(d1,d2,d3,d4)
+		{
+			var arr = [d1,d2,d3,d4];
+			var originalArr = [d1.innerHTML,d2.innerHTML,d3.innerHTML,d4.innerHTML];
+			var changeArr = [];
+			var stackArr1 = [];
+			var fisrt = null;
+			var next = null;
+			var index = 3;
+			var isMerge = 0;
+
+			for(var i = 0; i < arr.length; i++)
+			{
+				if(arr[i].innerHTML.length != 0)
+					{
+						stackArr1.push(arr[i].innerHTML);
+						SetTitle(arr[i],0);
+					}
+			}
+			
+				while(stackArr1.length)
+				{
+					if(stackArr1.length == 1)
+					{
+						
+						SetTitle(arr[index],stackArr1.pop());
+//						SpecialEffert(arr[index]);
+						break;
+					}
+					else
+					{
+						first = stackArr1.pop();
+						next = stackArr1.pop();
+					
+						if(first == next)
+						{
+							SetTitle(arr[index],2 * first);
+//							SpecialEffert(arr[index]);
+							index--;
+					    }
+						else
+						{
+							SetTitle(arr[index],first);
+//							SpecialEffert(arr[index]);
+							index--;
+							stackArr1.push(next);
+						}
+					}	
+				}
+				
+				for(var i = 0; i < arr.length; i++)
+					changeArr[i] = arr[i].innerHTML;
+					
+				if(changeArr.toString() != originalArr.toString())
+						isMerge = 1;
+						
+				return isMerge;
+		}
+		
+		
+		function left()
+		{	
+			if(Merge(divs[3],divs[2],divs[1],divs[0]) + Merge(divs[7],divs[6],divs[5],divs[4])
+			+ Merge(divs[11],divs[10],divs[9],divs[8]) + Merge(divs[15],divs[14],divs[13],divs[12]))
+				RandTitle();
+			else if(GameOver())
+			{
+				alert("Game Over");
+						img.style.top = "0px";
+						
+						return;
+			}
+			
+			music.src="css/11.WAV";
+			music.play();			
+		}
+		
+		function right()
+		{
+			
+			if(Merge(divs[0],divs[1],divs[2],divs[3]) + Merge(divs[4],divs[5],divs[6],divs[7])
+			+ Merge(divs[8],divs[9],divs[10],divs[11]) + Merge(divs[12],divs[13],divs[14],divs[15]))
+				RandTitle();
+			else if(GameOver())
+			{
+				alert("Game Over");
+						img.style.top = "0px";
+						
+						return;
+			}
+				
+			music.src="css/11.WAV";
+			music.play();
+		}
+		
+		function up()
+		{
+			if(Merge(divs[12],divs[8],divs[4],divs[0]) + Merge(divs[13],divs[9],divs[5],divs[1])
+			+ Merge(divs[14],divs[10],divs[6],divs[2]) + Merge(divs[15],divs[11],divs[7],divs[3]))
+				RandTitle();
+			else if(GameOver())
+			{
+				alert("Game Over");
+						img.style.top = "0px";
+						
+						return;
+			}				
+			music.src="css/11.WAV";
+			music.play();
+		}
+		
+		function down()
+		{
+			if(Merge(divs[0],divs[4],divs[8],divs[12]) + Merge(divs[1],divs[5],divs[9],divs[13])
+			+ Merge(divs[2],divs[6],divs[10],divs[14]) + Merge(divs[3],divs[7],divs[11],divs[15]))
+				RandTitle();
+			else if(GameOver())
+			{
+				alert("Game Over");
+						img.style.top = "0px";
+						
+						return;
+			}				
+			music.src="css/11.WAV";
+			music.play();
+		}
+		
+		$(document).touchwipe({
+		     wipeLeft: function() { left(); },
+		     wipeRight: function() { right(); },
+		     wipeUp: function() { down(); },
+		     wipeDown: function() { up(); },
+		     min_move_x: 50,
+		     min_move_y: 50,
+		     preventDefaultEvents: true
+		});
+		/* 
+		 * 加载界面
+		 */
+		window.onload = function()
+		{
+			//找到container
+			divs = document.getElementById("container").getElementsByTagName("div");
+			//找到照片
+			img = document.getElementById("2048img");
+			music = document.getElementById("music123");
+		}
+		
+		
+		
+		document.onkeypress = function(event)
+		{
+				if(event.keyCode == 119 || event.keyCode == 87)
+				{
+					up();
+				}
+				
+				else if(event.keyCode == 115 || event.keyCode == 83)
+				{
+					down();
+				}
+				else if(event.keyCode == 97 || event.keyCode == 65)
+				{
+					left();
+				}
+				else if(event.keyCode == 100 || event.keyCode == 68)
+				{
+					right();
+				}
+				else
+				{
+				}
+		}
+		
+		
+    </script>
+</head>
+<body>
+	<!--整个框架-->
+		<div id="container" class="container">
+			<div id=""></div>
+			<div id=""></div>
+			<div id=""></div>
+			<div id=""></div>
+			<div id=""></div>
+			<div id=""></div>
+			<div id=""></div>
+			<div id=""></div>
+			<div id=""></div>
+			<div id=""></div>
+			<div id=""></div>
+			<div id=""></div>
+			<div id=""></div>
+			<div id=""></div>
+			<div id=""></div>
+			<div id=""></div>
+			
+			<!--开始界面，点击初始化-->
+			<img src="img/2048index.jpg" id="2048img" onclick="Init()"/>;
+			<audio src="css/11.WAV" id="music123"></audio>
+		</div>
+</body>
+</html>
